@@ -1,0 +1,10 @@
+bark n 1
+birds n 3
+cats n 4
+chase n 4
+chirp n 1
+dogs n 4
+meow n 1
+the n 2
+始##始 begin 7
+末##末 end 7
