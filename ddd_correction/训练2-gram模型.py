@@ -52,7 +52,7 @@ def train_bigram(corpus_path, model_path):
 
 if __name__ == "__main__":
     # 设置数据名，这里用MSR语料或者用测试语料eng
-    data_name = 'eng'
+    data_name = 'MSR'
     # 设置训练集路径
     train_path = os.path.join('data/icwb2-data', 'training', '{}_training.utf8'.format(data_name))
     print("训练集路径：%s" % train_path)
