@@ -54,7 +54,6 @@ if __name__ == "__main__":
                     candidate_weight_li.append(caculate_weight(pre_word, candidate_word, pro_word))
                 predict_word = candidate_word_li[np.argmax(candidate_weight_li)]
                 print(predict_word, line, candidate_weight_li)
-                input()
 
 
 
