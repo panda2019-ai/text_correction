@@ -5,6 +5,8 @@ NLTK的最大熵模型实现词性标注
 
 import nltk
 import codecs
+from pyhanlp import *
+import re
 
 
 # 事件生成器，1个分词后的句子可以产生多个事件
@@ -39,8 +41,8 @@ def load_data(file_name):
     data_set = []
     with codecs.open(file_name, 'rb', 'utf8', 'ignore') as infile:
         for line_ser, line in enumerate(infile):
-            if line_ser >= 100:
-                break
+            # if line_ser >= 100:
+            #     break
             line = line.strip()
             if line:
                 word_li = line.split()
@@ -51,16 +53,27 @@ def load_data(file_name):
     return data_set
 
 
-# 预测“的”，“地”，“得”
-def ddd_correct(classifier, line):
-    predict_ddd_li = []
-    word_li = line.split()
-    word_li = [tuple(w.split(u'/')) for w in word_li if len(w.split(u'/')) == 2]
+# 的地得词组练习
+def ddd_phase_practice(classifier, line):
+    pre_word, cur_word, pro_word = re.split(u'【|】', line)
+    pre_pos = HanLP.segment(pre_word)[0].nature
+    cur_pos = u'ude'
+    pro_pos = HanLP.segment(pro_word)[0].nature
+    word_li = [(pre_word,pre_pos), (cur_word, cur_pos), (pro_word, pro_pos)]
     events_li = generate_events(word_li)
-    for i, (features, label) in enumerate(events_li):
-        predict_res = classifier.classify(features)
-        predict_ddd_li.append(u'%s\t%s%s%s' % (predict_res, features['pre_word'],label, features['pro_word']))
-    return predict_ddd_li
+    features, label = events_li[0]
+    predict_res = ddd_predict(classifier, features)
+    res = u'%s/%s %s %s/%s\t%s\t%s' % (features['pre_word'], features['pre_pos'], 
+                                            label, 
+                                       features['pro_word'], features['pro_pos'], 
+                                       label, predict_res)
+    return res
+
+
+# 预测“的”，“地”，“得”
+def ddd_predict(classifier, features):
+    predict_res = classifier.classify(features)
+    return predict_res
 
 
 if __name__ == "__main__":
@@ -76,7 +89,9 @@ if __name__ == "__main__":
     classifier_iis = nltk.classify.maxent.MaxentClassifier.train(train_set, trace=2, algorithm='iis', max_iter=10)
     print("IIS模型准确率= ", nltk.classify.accuracy(classifier_iis, test_set))
     print("IIS模型测试：")
-    text = "中国政府/nt 将/d 继续/v 坚持/v 奉行/v 独立自主/vl 的/ude1 和平/n 外交政策/nz 。/w"
-    for predict_ddd in ddd_correct(classifier_iis, text):
-        print(predict_ddd)
-    
+    with codecs.open('data/test/的地得词组练习.txt', 'rb', 'utf-8', 'ignore') as infile:
+        for line in infile:
+            line = line.strip()
+            if line:
+                print(ddd_phase_practice(classifier_iis, line))
+
